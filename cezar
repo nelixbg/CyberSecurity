@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAXN 1000
+
+// Функция за шифроване с Цезаров шифър (малки, големи букви и цифри)
+char* cezar_cipher(char* str, int key)
+{
+    int length = strlen(str);
+    char* cipher = (char*) malloc(sizeof(char) * (length + 1));  // +1 за NULL терминатора
+    for (int i = 0; i < length; i++)
+    {
+        if (str[i] >= 'a' && str[i] <= 'z')  // Малки букви
+        {
+            cipher[i] = (str[i] - 'a' + key) % 26 + 'a';
+        }
+        else if (str[i] >= 'A' && str[i] <= 'Z')  // Големи букви
+        {
+            cipher[i] = (str[i] - 'A' + key) % 26 + 'A';
+        }
+        else if (str[i] >= '0' && str[i] <= '9')  // Цифри
+        {
+            cipher[i] = (str[i] - '0' + key) % 10 + '0';
+        }
+        else
+        {
+            cipher[i] = str[i];  // Специални символи и разстояния остават без промяна
+        }
+    }
+    cipher[length] = '\0';  // Добавяне на NULL терминатор
+    return cipher;
+}
+
+// Функция за записване на шифрания текст във файл
+void save_to_file(char* cipher, const char* filename)
+{
+    FILE* file = fopen(filename, "w");
+    if (file == NULL)
+    {
+        perror("Не може да се отвори файлът");
+        return;
+    }
+    fprintf(file, "%s", cipher);
+    fclose(file);
+}
+
+int main()
+{
+    char str[MAXN];
+    printf("Въведете текст за шифроване: ");
+    fgets(str, MAXN, stdin);  // Въвеждане на цял ред, включително разстояния
+
+    int key;
+    printf("Въведете ключа за шифроване: ");
+    scanf("%d", &key);
+
+    // Изчистване на новия ред от fgets, ако го има
+    str[strcspn(str, "\n")] = '\0';
+
+    // Шифроване на текста
+    char* cipher = cezar_cipher(str, key);
+    printf("Шифрован текст: %s\n", cipher);
+
+    // Записване на шифрания текст в файл
+    save_to_file(cipher, "cipher.txt");
+
+    // Освобождаване на динамично заделената памет
+    free(cipher);
+
+    return EXIT_SUCCESS;
+}
